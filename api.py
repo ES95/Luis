@@ -5,7 +5,7 @@ import json,requests
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 
-@app.route('/', methods=['GET'])
+@app.route('https://luisendpoint.azurewebsites.net/', methods=['GET'])
 def home():
     text = str(request.args.get('text'))
     debug=False
