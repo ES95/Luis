@@ -19,7 +19,7 @@ def endpoint(text,debug=False):
     entities=[]
     sub_entities=[]
     hier_entities=[]
-    hierarchy=['typeofnav_page','typeofnav_section', 'typeofnav_question', 'typeofnav_subpart', 'typeofnav_answer', 'typeofnav_chapter', 'typeofnav_passage', 'typeofnav_rough', 'typeofnav_step', 'typeofnav_paragraph', 'typeofnav_sentence']
+    hierarchy=['typeofnav_page','typeofnav_section', 'typeofnav_question', 'typeofnav_subpart', 'typeofnav_answer', 'typeofnav_rough', 'typeofnav_step', 'typeofnav_paragraph', 'typeofnav_sentence']
     entity_lis=[]
     entity_pos=[]
     entity_copy=[]
@@ -105,33 +105,34 @@ def endpoint(text,debug=False):
     #child entity (ordinal and number)
         try:
             if not "." in ent:
-                for c in range(len(u['prediction']['entities'][entity])):
-                    for child in list(u['prediction']['entities'][entity][i].keys())[:-1]:
+                for c in range(len(u['prediction']['entities'][ent])):
+                    for child in list(u['prediction']['entities'][ent][i].keys())[:-1]:
                         child_entity={}
-                        ent=child
-                        tex=u['prediction']['entities'][entity][c]["$instance"][child][0]['text']
-                        score=u['prediction']['entities'][entity][c]["$instance"][child][0]['score']
-                        child_entity['entity']=ent
+                        ent2=child
+                        tex=u['prediction']['entities'][ent][c]["$instance"][child][0]['text']
+                        score=u['prediction']['entities'][ent][c]["$instance"][child][0]['score']
+                        if "ordinal" in ent2:
+                            tex=(u['prediction']['entities'][ent][c][child][0])
+                        child_entity['entity']=ent2
                         child_entity['value']=tex
+                        
                         if debug: child_entity['score']=score
-                        entity_copy.remove(("typeofnav_"+ent.split("_")[0]))
+                        entity_copy.remove(("typeofnav_"+ent2.split("_")[0]))
                         sub_entities.append(child_entity)
-        except:pass
-        
+        except:pass   
     if previous_flag and len(entity_copy)>=1:
         child_entity={} 
         for en in hierarchy:
             if en in entity_copy:
                 child_entity['entity']=en.split("_")[1]+'_ordinal'
-        child_entity['value']="previous"
+        child_entity['value']={'offset': -1, 'relativeTo': 'current'}
         sub_entities.append(child_entity)
     if next_flag and len(entity_copy)>=1:
         child_entity={}
         for en in hierarchy:
             if en in entity_copy:
                 child_entity['entity']=en.split("_")[1]+'_ordinal'
-#         child_entity['entity']=entity_copy[0].split("_")[1]+'_ordinal'
-        child_entity['value']="next"
+        child_entity['value']={'offset': 1, 'relativeTo': 'current'}
         sub_entities.append(child_entity)
 
     for ij in hierarchy:
